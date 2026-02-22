@@ -47,7 +47,7 @@ class ConvAE_SemiSupervised(nn.Module):
     """
     Semi-supervised Convolutional Autoencoder with regression head.
     Works with NxN matrices (N = size).
-    ✅ Fixed: Uses F.interpolate for exact size control
+    Fixed: Uses F.interpolate for exact size control
     """
     def __init__(self, size=10, bottleneck=10, dropout=0.2):
         super().__init__()
@@ -468,7 +468,7 @@ def main():
     unsup_weight    = UNSUP_WEIGHT
     y_col           = TARGET_COL
 
-    save_dir      = f"{DATA_DIR}/{SYMMETRY}/output/SemiConvAE_Opt"
+    save_dir      = f"{DATA_DIR}/{SYMMETRY}/output/SemiConvAE"
     csv_labeled   = f"{DATA_DIR}/{SYMMETRY}/output/train_100.csv"
     csv_unlabeled = f"{DATA_DIR}/{SYMMETRY}/unlabeled_10000.csv"
 
@@ -719,8 +719,9 @@ def main():
         plot_accuracy(acc_hist_filtered, save_dir, fname_base="fig4_test_accuracy", step=1)
         print(f"\n✔ Created test accuracy plot")
 
-    print("\n✅ Training completed successfully!")
+    print("\nTraining completed successfully!")
     print(f"All outputs saved in: {save_dir}")
 
 if __name__ == "__main__":
+
     main()
