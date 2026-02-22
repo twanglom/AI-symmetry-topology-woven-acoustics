@@ -20,7 +20,6 @@ import pandas as pd
 import torch
 import matplotlib.pyplot as plt
 import matplotlib.ticker as ticker
-from sklearn.decomposition import PCA
 
 from pymoo.core.problem import ElementwiseProblem
 from pymoo.algorithms.soo.nonconvex.ga import GA
@@ -46,10 +45,10 @@ USE_DECODER        = True
 
 DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
 
-AE_MODEL_PATH      = f"{DATA_DIR}/{SYMMETRY}/output/SemiConvAE_Opt/conv_semi_supervised_ae_model.pth"
+AE_MODEL_PATH      = f"{DATA_DIR}/{SYMMETRY}/output/SemiConvAE/conv_semi_supervised_ae_model.pth"
 AE_DIR             = os.path.dirname(AE_MODEL_PATH)
 LATENT_RANGES_PATH = os.path.join(AE_DIR, "latent_ranges.csv")
-GPR_MODEL_DIR      = f"{DATA_DIR}/{SYMMETRY}/output/GPR_Opt"
+GPR_MODEL_DIR      = f"{DATA_DIR}/{SYMMETRY}/output/GPR"
 TRAIN_LATENT_PATH  = f"{DATA_DIR}/{SYMMETRY}/output/SemiConvAE_Opt/train_latent_vectors.npy"
 OPT_RESULTS_DIR    = f"{DATA_DIR}/{SYMMETRY}/output/Optimized_Result_UQ"
 
@@ -200,51 +199,6 @@ def save_final_triplet(logits, probs, binary, out_path, title="Optimization Resu
     plt.close(fig)
 
 
-def plot_latent_space_pca(res, train_z_path, save_path):
-    """Project latent space to 2D with PCA and overlay the GA trajectory."""
-    has_bg = False
-    if os.path.exists(train_z_path):
-        try:
-            z_bg = np.load(train_z_path)
-            if z_bg.shape[0] > 2000:
-                z_bg = z_bg[np.random.choice(z_bg.shape[0], 2000, replace=False)]
-            has_bg = True
-        except Exception as e:
-            print(f"Could not load background data: {e}")
-
-    z_traj = np.array([res.history[i].opt.get("X")[0] for i in range(len(res.history))])
-    gens   = np.arange(len(z_traj))
-
-    pca = PCA(n_components=2)
-    if has_bg:
-        z_bg_2d   = pca.fit_transform(z_bg)
-        z_traj_2d = pca.transform(z_traj)
-    else:
-        z_traj_2d = pca.fit_transform(z_traj)
-        z_bg_2d   = None
-
-    plt.figure(figsize=(8, 6))
-    if has_bg and z_bg_2d is not None:
-        plt.scatter(z_bg_2d[:, 0], z_bg_2d[:, 1], c="lightgray", alpha=0.4,
-                    s=15, label="Valid Manifold (Train)")
-    plt.plot(z_traj_2d[:, 0], z_traj_2d[:, 1], c="red", linewidth=1.5,
-             alpha=0.6, linestyle="--")
-    sc = plt.scatter(z_traj_2d[:, 0], z_traj_2d[:, 1], c=gens, cmap="viridis",
-                     s=40, zorder=5, edgecolor="k", linewidth=0.5,
-                     label="GA Path")
-    plt.scatter(*z_traj_2d[0],  c="blue", s=120, marker="*", zorder=10, label="Start")
-    plt.scatter(*z_traj_2d[-1], c="red",  s=120, marker="X", zorder=10, label="Optimum")
-    plt.colorbar(sc, label="Generation")
-    var = np.sum(pca.explained_variance_ratio_)
-    plt.title(f"Optimization Trajectory in Latent Space (PCA, {var:.1%} variance)")
-    plt.xlabel(f"PC1 ({pca.explained_variance_ratio_[0]:.1%})")
-    plt.ylabel(f"PC2 ({pca.explained_variance_ratio_[1]:.1%})")
-    plt.legend(loc="best")
-    plt.grid(True, linestyle="--", alpha=0.3)
-    plt.tight_layout()
-    plt.savefig(save_path, dpi=300)
-    plt.close()
-    print(f"Saved: {save_path}")
 
 
 # ============================================================
@@ -274,7 +228,7 @@ def run_robustness_test(problem, termination, save_dir, n_runs):
     for i in range(n_runs):
         algo = GA(pop_size=POPULATION_SIZE, eliminate_duplicates=True, seed=i + 100)
         res  = minimize(problem, algo, termination, verbose=False, save_history=True)
-        curve = [float(-a.opt.get("F")[0]) for a in res.history]
+        curve = [float(-a.opt.get("F")[0][0]) for a in res.history]
         all_histories.append(curve)
         final_results.append(curve[-1])
         print(f"  Run {i+1:02d}/{n_runs}: {curve[-1]:.10f}")
@@ -380,8 +334,6 @@ def main():
         logits, probs, binary = decode_from_latent(model_ae, best_z, DEVICE)
         save_final_triplet(logits, probs, binary,
                            os.path.join(OPT_RESULTS_DIR, "best_design_triplet.png"))
-        plot_latent_space_pca(res, TRAIN_LATENT_PATH,
-                              os.path.join(OPT_RESULTS_DIR, "latent_trajectory_pca.png"))
         np.save(os.path.join(OPT_RESULTS_DIR, "best_pattern_binary.npy"), binary)
 
     print(f"\nAll results saved to: {OPT_RESULTS_DIR}")
