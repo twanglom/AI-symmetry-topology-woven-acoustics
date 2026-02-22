@@ -94,7 +94,7 @@ Trains the semi-supervised convolutional autoencoder. Key hyperparameters are se
 | `reg_weight` | 10.0 | Weight for supervised prediction loss (λ_p) |
 | `unsup_weight` | 3.0 | Weight for unlabeled reconstruction loss (λ_u) |
 
-Trained model, config, scalers, and latent vectors are saved to `DATA/{SYMMETRY}/output/SemiConvAE_Opt/`.
+Trained model, config, scalers, and latent vectors are saved to `DATA/{SYMMETRY}/output/SemiConvAE/`.
 
 ### Step 3 — Train the GPR surrogate
 
@@ -102,7 +102,7 @@ Trained model, config, scalers, and latent vectors are saved to `DATA/{SYMMETRY}
 python gpr_training.py
 ```
 
-Encodes the training data into the latent space and fits a GPR model with an RBF kernel using PyEGRO. Results are saved to `DATA/{SYMMETRY}/output/GPR_Opt/`.
+Encodes the training data into the latent space and fits a GPR model with an RBF kernel using PyEGRO. Results are saved to `DATA/{SYMMETRY}/output/GPR/`.
 
 ### Step 4 — Topology optimization
 
