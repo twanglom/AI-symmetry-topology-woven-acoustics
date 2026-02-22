@@ -54,7 +54,7 @@ Columns `P00`–`P99` only. These are feasible woven patterns satisfying symmetr
 
 ```bash
 # Clone the repository
-git clone https://github.com/<username>/symmetry-topology-woven-acoustics.git
+git clone https://github.com/twanglom/AI-symmetry-topology-woven-acoustics.git
 cd symmetry-topology-woven-acoustics
 
 # Install dependencies
