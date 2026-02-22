@@ -262,7 +262,7 @@ def train_gpr(
 if __name__ == "__main__":
     sym        = SYMMETRY
     output_dir = f"{DATA_DIR}/{sym}/output/GPR_Opt"
-    model_path = f"{DATA_DIR}/{sym}/output/SemiConvAE_Opt/conv_semi_supervised_ae_model.pth"
+    model_path = f"{DATA_DIR}/{sym}/output/SemiConvAE/conv_semi_supervised_ae_model.pth"
 
     train_gpr(
         csv_train      = f"{DATA_DIR}/{sym}/output/train_{TRAIN_FRAC}.csv",
