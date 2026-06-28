@@ -7,11 +7,19 @@
 
 ## Overview
 
-This repository provides the code and data accompanying the paper. We propose a symmetry-informed, metamodel-based framework for the inverse design of woven acoustic materials. The pipeline consists of three stages:
+This repository provides the code and data accompanying the paper. We propose a symmetry-informed, surrogate-based framework for the inverse design of woven acoustic materials. The workflow follows four stages:
 
-1. **Constraint-aware pattern generation** — binary woven patterns are sampled under crystallographic wallpaper group symmetries (p2, p4, pm, pmm), hang-on manufacturability constraints, and topological equivalence rules.
-2. **Semi-supervised Convolutional Autoencoder (Semi-ConvAE)** — compresses 10×10 binary topologies into a compact 10-dimensional latent space using both labeled (300 FEM-simulated) and unlabeled (10,000) patterns.
-3. **Gaussian Process Regression (GPR) + Genetic Algorithm (GA)** — a GPR surrogate is trained on the latent space and used to guide a GA toward woven patterns with maximized broadband sound absorption.
+1. **Dataset preparation** : generate feasible binary woven patterns under wallpaper symmetries (p2, p4, pm, pmm), hang-on manufacturability constraints, and topological equivalence rules. FEM simulations provide acoustic labels for a subset of patterns, while a larger feasible set is used as unlabeled data.
+
+2. **Semi-ConvAE training** : train a semi-supervised convolutional autoencoder to embed 10×10 binary topologies into a compact latent space. An auxiliary regression head is used only during training to organize the latent space with respect to acoustic performance.
+
+3. **GPR surrogate modeling** : encode the labeled patterns and train a Gaussian Process Regression surrogate in the learned latent space to predict broadband sound absorption and model uncertainty.
+
+4. **Optimization and reconstruction** : optimize the latent vector using a Genetic Algorithm guided by the GPR surrogate, then decode and repair the optimized latent point into a symmetry-valid binary woven topology.
+
+
+<img width="4348" height="2226" alt="propose_framework" src="https://github.com/user-attachments/assets/37ff26d5-e1a3-4716-bb95-bb159e7eb9ea" />
+
 
 ---
 
